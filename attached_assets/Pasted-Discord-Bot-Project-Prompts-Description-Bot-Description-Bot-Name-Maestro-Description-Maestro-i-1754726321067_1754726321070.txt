@@ -1,0 +1,105 @@
+Discord Bot Project: Prompts & Description
+Bot Description
+Bot Name: Maestro
+
+Description: Maestro is the ultimate all-in-one Discord bot designed to elevate your server's experience. From providing seamless music playback and lively games to essential moderation and helpful utility commands, Maestro is the conductor of your community. It features a rich set of slash commands that are easy to use and intuitive for everyone. Maestro's special features include a voice channel announcer that uses a text-to-speech (TTS) voice to notify members when someone joins or leaves, and a powerful music player that can stream audio directly from YouTube links. With Maestro, your server's engagement and fun are always in perfect harmony.
+
+Development Prompts
+Core Bot Setup
+Create the bot: Set up a new application in the Discord Developer Portal. Get the bot's token.
+
+Choose a library: Select a programming language and a Discord library (e.g., Python with discord.py, Node.js with discord.js).
+
+Initial connection: Write the code to connect the bot to Discord using the token.
+
+Event handlers: Set up event handlers for on_ready (to confirm the bot is online) and on_message (for basic message processing).
+
+Slash Command Registration: Implement a command handler and register all slash commands globally or for specific guilds.
+
+Moderation Commands (Dyno-like)
+Prompt: /kick [user] [reason]
+
+Goal: Create a slash command that kicks a specified user from the server.
+
+Parameters: user (required, a mention or user ID), reason (optional, a string).
+
+Logic: The command should check if the user executing it has the necessary permissions. It should then kick the target user and send a confirmation message to the channel, including the reason if provided.
+
+Prompt: /ban [user] [reason]
+
+Goal: Create a slash command that bans a specified user from the server.
+
+Parameters: user (required, a mention or user ID), reason (optional, a string).
+
+Logic: Similar to /kick, this command should check for permissions, ban the user, and provide a confirmation message.
+
+Prompt: /mute [user] [duration] [reason]
+
+Goal: Create a slash command that mutes a user for a specified duration.
+
+Parameters: user (required), duration (required, e.g., "5m" for 5 minutes), reason (optional).
+
+Logic: The bot should create a "Muted" role if it doesn't exist, assign it to the user, and set a timer to automatically remove the role after the duration expires.
+
+Music Player & Audio Features
+Prompt: /play [link]
+
+Goal: Create a slash command to play music in the user's voice channel.
+
+Parameters: link (required, a YouTube URL).
+
+Logic: The bot must first join the user's voice channel. It should then use a library (like yt-dlp or similar) to stream the audio from the provided YouTube link and play it.
+
+Prompt: /skip
+
+Goal: Create a slash command to skip the current song and play the next one in the queue.
+
+Logic: The bot should stop the current playback and start playing the next song from a managed queue.
+
+Prompt: /queue
+
+Goal: Create a slash command to display the current music queue.
+
+Logic: The bot should send a message listing the songs that are currently in the queue.
+
+Prompt: /tts-vc-announce on/off
+
+Goal: Create a slash command to toggle the voice channel announcement feature.
+
+Logic: This command should save the setting for the server. When enabled, the bot should listen for on_voice_state_update events. When a user joins or leaves a voice channel, the bot should join the channel and use a Text-to-Speech engine to announce "User has joined the channel" or "User has left the channel," and then disconnect.
+
+Games & Fun Commands
+Prompt: /dice
+
+Goal: Create a simple game command that simulates rolling a six-sided die.
+
+Logic: The bot should generate a random number between 1 and 6 and send it as a message.
+
+Prompt: /count
+
+Goal: Create a command for a counting game.
+
+Logic: This is a more complex game. The bot needs to keep track of the last number counted in a specific channel. It should check if the next message from any user is the correct next number in the sequence. If it is, the count continues; if not, the count resets.
+
+Prompt: /8ball [question]
+
+Goal: Create a fun command that mimics a Magic 8-Ball.
+
+Parameters: question (optional, a string).
+
+Logic: The bot should choose a random response from a predefined list of "8-ball" answers and send it back.
+
+Utility Commands
+Prompt: /serverinfo
+
+Goal: Create a command to display information about the current server.
+
+Logic: The bot should gather details like the server's name, ID, owner, member count, creation date, and booster level, then display them in a well-formatted embed.
+
+Prompt: /userinfo [user]
+
+Goal: Create a command to show information about a user.
+
+Parameters: user (optional, a mention or user ID). If not specified, it should show information about the user who ran the command.
+
+Logic: The bot should display the user's name, ID, creation date, join date, roles, and profile picture in an embed.
