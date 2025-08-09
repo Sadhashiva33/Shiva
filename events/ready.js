@@ -19,6 +19,7 @@ module.exports = {
         
         try {
             console.log('🔄 Started refreshing application (/) commands.');
+            console.log(`📋 Commands being registered: ${commands.map(cmd => cmd.name).join(', ')}`);
             
             if (config.guildId) {
                 // Register commands for a specific guild (faster for development)

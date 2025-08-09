@@ -118,9 +118,9 @@ const ttsVcAnnounceCommand = {
     }
 };
 
-const pingCommand = {
+const statusCommand = {
     data: new SlashCommandBuilder()
-        .setName('ping')
+        .setName('status')
         .setDescription('Check bot latency and response time'),
     
     async execute(interaction) {
@@ -163,9 +163,9 @@ const inviteCommand = {
     }
 };
 
-const uptimeCommand = {
+const runtimeCommand = {
     data: new SlashCommandBuilder()
-        .setName('uptime')
+        .setName('runtime')
         .setDescription('Check how long the bot has been running'),
     
     async execute(interaction) {
@@ -292,6 +292,6 @@ async function logAction(client, guildId, logData) {
 }
 
 module.exports = {
-    commands: [serverInfoCommand, userInfoCommand, ttsVcAnnounceCommand, pingCommand, inviteCommand, uptimeCommand, setLogChannelCommand, clearCommand],
+    commands: [serverInfoCommand, userInfoCommand, ttsVcAnnounceCommand, statusCommand, inviteCommand, runtimeCommand, setLogChannelCommand, clearCommand],
     logAction
 };

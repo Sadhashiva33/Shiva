@@ -22,19 +22,36 @@ client.voiceConnections = new Collection();
 
 // Load command files
 const commandFolders = fs.readdirSync('./commands');
+console.log(`Loading commands from ${commandFolders.length} files...`);
+
 for (const folder of commandFolders) {
     if (folder.endsWith('.js')) {
-        const command = require(`./commands/${folder}`);
-        if (command.data) {
-            client.commands.set(command.data.name, command);
-        } else if (command.commands) {
-            // Handle multiple commands in one file
-            command.commands.forEach(cmd => {
-                client.commands.set(cmd.data.name, cmd);
-            });
+        try {
+            const command = require(`./commands/${folder}`);
+            if (command.data) {
+                client.commands.set(command.data.name, command);
+                console.log(`✓ Loaded command: ${command.data.name} from ${folder}`);
+            } else if (command.commands) {
+                // Handle multiple commands in one file
+                command.commands.forEach(cmd => {
+                    if (cmd.data && cmd.data.name) {
+                        client.commands.set(cmd.data.name, cmd);
+                        console.log(`✓ Loaded command: ${cmd.data.name} from ${folder}`);
+                    } else {
+                        console.log(`⚠️ Invalid command structure in ${folder}:`, cmd);
+                    }
+                });
+                console.log(`✓ Loaded ${command.commands.length} commands from ${folder}`);
+            } else {
+                console.log(`⚠️ No valid command structure found in ${folder}`);
+            }
+        } catch (error) {
+            console.error(`❌ Error loading ${folder}:`, error.message);
         }
     }
 }
+
+console.log(`📝 Total commands loaded: ${client.commands.size}`);
 
 // Load event files
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
