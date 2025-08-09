@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, StreamType, AudioPlayerStatus, VoiceConnectionStatus } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, StreamType, AudioPlayerStatus, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
 const play = require('play-dl');
 
 const playCommand = {
@@ -28,12 +28,11 @@ const playCommand = {
         await interaction.deferReply();
         
         try {
-            // Initialize play-dl
-            await play.setToken({
-                soundcloud: {
-                    client_id: null
-                }
-            });
+            // Validate URL first
+            const isValid = play.yt_validate(url);
+            if (!isValid) {
+                return interaction.editReply({ content: '❌ Invalid YouTube URL!' });
+            }
             
             // Get video info
             const info = await play.video_info(url);
@@ -66,13 +65,39 @@ const playCommand = {
             
             // Join voice channel if not connected
             if (!queue.connection) {
-                queue.connection = joinVoiceChannel({
-                    channelId: voiceChannel.id,
-                    guildId: interaction.guildId,
-                    adapterCreator: interaction.guild.voiceAdapterCreator,
-                });
-                
-                queue.connection.subscribe(queue.player);
+                try {
+                    queue.connection = joinVoiceChannel({
+                        channelId: voiceChannel.id,
+                        guildId: interaction.guildId,
+                        adapterCreator: interaction.guild.voiceAdapterCreator,
+                        selfDeaf: true,
+                        selfMute: false
+                    });
+                    
+                    queue.connection.subscribe(queue.player);
+                    
+                    // Handle connection state changes
+                    queue.connection.on(VoiceConnectionStatus.Ready, () => {
+                        console.log('Connection is ready!');
+                    });
+                    
+                    queue.connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
+                        console.log('Music connection disconnected, attempting to reconnect...');
+                        try {
+                            await entersState(queue.connection, VoiceConnectionStatus.Connecting, 5_000);
+                        } catch (error) {
+                            console.error('Failed to reconnect, destroying connection:', error);
+                            if (queue.connection) {
+                                queue.connection.destroy();
+                                queue.connection = null;
+                                queue.isPlaying = false;
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error joining voice channel:', error);
+                    return interaction.editReply({ content: '❌ Failed to join voice channel!' });
+                }
             }
             
             // Start playing if nothing is currently playing
@@ -293,6 +318,18 @@ async function playNextSong(queue, interaction) {
         queue.player.play(resource);
         
         queue.player.on(AudioPlayerStatus.Idle, () => {
+            setTimeout(() => {
+                playNextSong(queue, interaction);
+            }, 1000);
+        });
+        
+        queue.player.on(AudioPlayerStatus.Playing, () => {
+            console.log(`Now playing: ${song.title}`);
+        });
+        
+        queue.player.on('error', error => {
+            console.error('Audio player error:', error);
+            queue.isPlaying = false;
             playNextSong(queue, interaction);
         });
         

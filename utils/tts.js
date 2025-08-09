@@ -25,7 +25,10 @@ async function generateTTS(text, language = 'en-US') {
             try {
                 const resource = createAudioResource(filepath, {
                     inputType: StreamType.Arbitrary,
-                    inlineVolume: true
+                    inlineVolume: true,
+                    metadata: {
+                        title: 'TTS Announcement'
+                    }
                 });
                 
                 // Clean up file after a delay
@@ -63,9 +66,16 @@ async function playTTSAnnouncement(connection, player, text, language = 'en-US')
                     if (connection.state.status !== 'destroyed') {
                         connection.destroy();
                     }
-                }, 1000);
+                }, 2000);
             }
         });
+        
+        // Timeout fallback
+        setTimeout(() => {
+            if (connection.state.status !== 'destroyed') {
+                connection.destroy();
+            }
+        }, 10000);
     } catch (error) {
         console.error('Error playing TTS announcement:', error);
         // Disconnect on error

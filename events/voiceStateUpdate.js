@@ -67,13 +67,33 @@ async function makeAnnouncement(client, channel, text) {
             channelId: channel.id,
             guildId: channel.guild.id,
             adapterCreator: channel.guild.voiceAdapterCreator,
+            selfDeaf: true,
+            selfMute: false
         });
         
         const player = createAudioPlayer();
         connection.subscribe(player);
         
-        // Play the TTS announcement
-        await playTTSAnnouncement(connection, player, text);
+        // Wait for connection to be ready, then play announcement
+        setTimeout(async () => {
+            try {
+                if (connection.state.status === VoiceConnectionStatus.Ready) {
+                    await playTTSAnnouncement(connection, player, text);
+                } else {
+                    // Wait a bit longer for connection
+                    setTimeout(async () => {
+                        if (connection.state.status !== 'destroyed') {
+                            await playTTSAnnouncement(connection, player, text);
+                        }
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error in TTS announcement:', error);
+                if (connection.state.status !== 'destroyed') {
+                    connection.destroy();
+                }
+            }
+        }, 1000);
         
     } catch (error) {
         console.error('Error making TTS announcement:', error);
