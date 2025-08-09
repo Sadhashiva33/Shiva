@@ -17,14 +17,19 @@ module.exports = {
         let announcementText = null;
         let targetChannel = null;
         
+        // Only announce if it's not the bot itself
+        if (member.user.id === client.user.id) {
+            return; // Don't announce bot's own voice state changes
+        }
+        
         // User joined a voice channel
         if (!oldState.channel && newState.channel) {
-            announcementText = `${member.user.username} joined the voice channel`;
+            announcementText = `${member.user.username} joined`;
             targetChannel = newState.channel;
         }
         // User left a voice channel
         else if (oldState.channel && !newState.channel) {
-            announcementText = `${member.user.username} left the voice channel`;
+            announcementText = `${member.user.username} left`;
             targetChannel = oldState.channel;
         }
         // User moved between channels

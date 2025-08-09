@@ -28,14 +28,21 @@ const playCommand = {
         await interaction.deferReply();
         
         try {
-            // Validate URL first
-            const isValid = play.yt_validate(url);
+            // Clean and validate URL
+            let cleanUrl = url;
+            if (url.includes('youtu.be/')) {
+                // Convert youtu.be to youtube.com format
+                const videoId = url.split('youtu.be/')[1].split('?')[0];
+                cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            }
+            
+            const isValid = play.yt_validate(cleanUrl);
             if (!isValid) {
                 return interaction.editReply({ content: '❌ Invalid YouTube URL!' });
             }
             
             // Get video info
-            const info = await play.video_info(url);
+            const info = await play.video_info(cleanUrl);
             const title = info.video_details.title;
             const duration = formatDuration(info.video_details.durationInSec);
             
@@ -53,9 +60,9 @@ const playCommand = {
                 interaction.client.musicQueues.set(interaction.guildId, queue);
             }
             
-            // Add song to queue
+            // Add song to queue with cleaned URL
             const song = {
-                url: url,
+                url: cleanUrl,
                 title: title,
                 duration: duration,
                 requestedBy: interaction.user.tag
@@ -87,12 +94,13 @@ const playCommand = {
                         console.log('Music connection disconnected, attempting to reconnect...');
                         try {
                             await entersState(queue.connection, VoiceConnectionStatus.Connecting, 5_000);
+                            console.log('Reconnected successfully!');
                         } catch (error) {
-                            console.error('Failed to reconnect, destroying connection:', error);
-                            if (queue.connection) {
-                                queue.connection.destroy();
-                                queue.connection = null;
-                                queue.isPlaying = false;
+                            console.error('Failed to reconnect, staying in channel but stopping music:', error);
+                            // Don't destroy connection, just stop playing
+                            queue.isPlaying = false;
+                            if (queue.player) {
+                                queue.player.stop();
                             }
                         }
                     });
@@ -216,7 +224,7 @@ const bassCommand = {
 const stopCommand = {
     data: new SlashCommandBuilder()
         .setName('stop')
-        .setDescription('Stop music and clear the queue'),
+        .setDescription('Stop music but stay in voice channel'),
     
     async execute(interaction) {
         const queue = interaction.client.musicQueues.get(interaction.guildId);
@@ -235,15 +243,12 @@ const stopCommand = {
         queue.player.stop();
         queue.isPlaying = false;
         
-        if (queue.connection) {
-            queue.connection.destroy();
-            queue.connection = null;
-        }
+        // Don't destroy connection - stay in voice channel
         
         const embed = new EmbedBuilder()
             .setColor('#FF0000')
             .setTitle('⏹️ Music Stopped')
-            .setDescription('Stopped playing and cleared the queue');
+            .setDescription('Stopped playing and cleared the queue\nBot staying in voice channel - use `/disconnect` to leave');
             
         await interaction.reply({ embeds: [embed] });
     }
@@ -313,7 +318,15 @@ async function playNextSong(queue, interaction) {
     
     try {
         console.log(`Attempting to play: ${song.title} - ${song.url}`);
-        const stream = await play.stream(song.url);
+        
+        // Ensure we have a valid YouTube URL for streaming
+        let streamUrl = song.url;
+        if (song.url.includes('youtu.be/')) {
+            const videoId = song.url.split('youtu.be/')[1].split('?')[0];
+            streamUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        }
+        
+        const stream = await play.stream(streamUrl);
         
         const resource = createAudioResource(stream.stream, {
             inputType: stream.type,
