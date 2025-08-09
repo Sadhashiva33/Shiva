@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, StreamType, AudioPlayerStatus, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
 const play = require('play-dl');
+const ytdl = require('@distube/ytdl-core');
 
 const playCommand = {
     data: new SlashCommandBuilder()
@@ -326,12 +327,34 @@ async function playNextSong(queue, interaction) {
             streamUrl = `https://www.youtube.com/watch?v=${videoId}`;
         }
         
-        const stream = await play.stream(streamUrl);
+        console.log(`Streaming URL: ${streamUrl}`);
         
-        const resource = createAudioResource(stream.stream, {
-            inputType: stream.type,
-            inlineVolume: true
-        });
+        // Try ytdl-core first, fallback to play-dl
+        let resource;
+        try {
+            const ytdlStream = ytdl(streamUrl, {
+                filter: 'audioonly',
+                highWaterMark: 1 << 25,
+                quality: 'highestaudio'
+            });
+            
+            resource = createAudioResource(ytdlStream, {
+                inputType: StreamType.Arbitrary,
+                inlineVolume: true
+            });
+            
+            console.log('Using ytdl-core for streaming');
+        } catch (ytdlError) {
+            console.log('ytdl-core failed, trying play-dl:', ytdlError.message);
+            const stream = await play.stream(streamUrl, { quality: 1 });
+            
+            resource = createAudioResource(stream.stream, {
+                inputType: stream.type,
+                inlineVolume: true
+            });
+            
+            console.log('Using play-dl for streaming');
+        }
         
         // Set volume if available
         if (resource.volume && queue.volume !== undefined) {
