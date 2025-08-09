@@ -24,12 +24,12 @@ module.exports = {
         
         // User joined a voice channel
         if (!oldState.channel && newState.channel) {
-            announcementText = `${member.user.username} joined`;
+            announcementText = `${member.displayName} joined`;
             targetChannel = newState.channel;
         }
         // User left a voice channel
         else if (oldState.channel && !newState.channel) {
-            announcementText = `${member.user.username} left`;
+            announcementText = `${member.displayName} left`;
             targetChannel = oldState.channel;
         }
         // User moved between channels

@@ -12,10 +12,14 @@
   "dependencies": {
     "@discordjs/voice": "^0.18.0",
     "@distube/ytdl-core": "^4.16.12",
+    "discord-ytdl-core": "^5.0.4",
     "discord.js": "^14.21.0",
+    "ffmpeg-static": "^5.2.0",
     "gtts": "^0.2.1",
+    "lyrics-finder": "^21.7.0",
     "opusscript": "^0.0.8",
     "play-dl": "^1.9.7",
+    "yt-search": "^2.13.1",
     "ytdl-core": "^4.11.5"
   }
 }
