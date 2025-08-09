@@ -2,6 +2,7 @@ module.exports = {
     token: process.env.DISCORD_TOKEN || 'your_bot_token_here',
     clientId: process.env.CLIENT_ID || 'your_client_id_here',
     guildId: process.env.GUILD_ID || null, // Leave null for global commands
+    prefix: '.',
     
     // Music settings
     maxQueueSize: 50,

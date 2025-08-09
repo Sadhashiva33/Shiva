@@ -19,18 +19,18 @@ module.exports = {
         
         // User joined a voice channel
         if (!oldState.channel && newState.channel) {
-            announcementText = `${member.displayName} has joined the channel`;
+            announcementText = `${member.user.username} joined the voice channel`;
             targetChannel = newState.channel;
         }
         // User left a voice channel
         else if (oldState.channel && !newState.channel) {
-            announcementText = `${member.displayName} has left the channel`;
+            announcementText = `${member.user.username} left the voice channel`;
             targetChannel = oldState.channel;
         }
         // User moved between channels
         else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
             // Announce in the new channel
-            announcementText = `${member.displayName} has joined the channel`;
+            announcementText = `${member.user.username} joined the voice channel`;
             targetChannel = newState.channel;
             
             // Also announce in the old channel after a delay
@@ -38,9 +38,9 @@ module.exports = {
                 await makeAnnouncement(
                     client,
                     oldState.channel,
-                    `${member.displayName} has left the channel`
+                    `${member.user.username} left the voice channel`
                 );
-            }, 1000);
+            }, 1500);
         }
         
         if (announcementText && targetChannel) {

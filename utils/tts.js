@@ -25,6 +25,7 @@ async function generateTTS(text, language = 'en-US') {
             try {
                 const resource = createAudioResource(filepath, {
                     inputType: StreamType.Arbitrary,
+                    inlineVolume: true
                 });
                 
                 // Clean up file after a delay

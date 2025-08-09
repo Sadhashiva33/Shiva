@@ -28,6 +28,13 @@ const playCommand = {
         await interaction.deferReply();
         
         try {
+            // Initialize play-dl
+            await play.setToken({
+                soundcloud: {
+                    client_id: null
+                }
+            });
+            
             // Get video info
             const info = await play.video_info(url);
             const title = info.video_details.title;
@@ -40,7 +47,9 @@ const playCommand = {
                     songs: [],
                     player: createAudioPlayer(),
                     connection: null,
-                    isPlaying: false
+                    isPlaying: false,
+                    volume: 0.5,
+                    currentResource: null
                 };
                 interaction.client.musicQueues.set(interaction.guildId, queue);
             }
@@ -231,16 +240,30 @@ const volumeCommand = {
             return interaction.reply({ content: '❌ Nothing is currently playing!', ephemeral: true });
         }
         
-        const volume = interaction.options.getInteger('level');
+        const volume = interaction.options.getInteger('level') / 100;
         
-        // Note: Volume control would require audio processing
-        // This is a simulated response
-        const embed = new EmbedBuilder()
-            .setColor('#00BFFF')
-            .setTitle('🔊 Volume Changed')
-            .setDescription(`Volume set to **${volume}%**`);
+        // Set volume on the current resource if it has inline volume
+        if (queue.currentResource && queue.currentResource.volume) {
+            queue.currentResource.volume.setVolume(volume);
+            queue.volume = volume;
             
-        await interaction.reply({ embeds: [embed] });
+            const embed = new EmbedBuilder()
+                .setColor('#00BFFF')
+                .setTitle('🔊 Volume Changed')
+                .setDescription(`Volume set to **${Math.round(volume * 100)}%**`);
+                
+            await interaction.reply({ embeds: [embed] });
+        } else {
+            // Store volume for next song
+            queue.volume = volume;
+            
+            const embed = new EmbedBuilder()
+                .setColor('#FFA500')
+                .setTitle('🔊 Volume Queued')
+                .setDescription(`Volume will be set to **${Math.round(volume * 100)}%** for the next song`);
+                
+            await interaction.reply({ embeds: [embed] });
+        }
     }
 };
 
@@ -258,8 +281,15 @@ async function playNextSong(queue, interaction) {
         
         const resource = createAudioResource(stream.stream, {
             inputType: stream.type,
+            inlineVolume: true
         });
         
+        // Set volume if available
+        if (resource.volume && queue.volume !== undefined) {
+            resource.volume.setVolume(queue.volume);
+        }
+        
+        queue.currentResource = resource;
         queue.player.play(resource);
         
         queue.player.on(AudioPlayerStatus.Idle, () => {
