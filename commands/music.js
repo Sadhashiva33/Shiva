@@ -55,11 +55,13 @@ const playCommand = {
             
             // Add song to queue
             const song = {
-                url,
-                title,
-                duration,
+                url: url,
+                title: title,
+                duration: duration,
                 requestedBy: interaction.user.tag
             };
+            
+            console.log('Adding song to queue:', song);
             
             queue.songs.push(song);
             
@@ -301,7 +303,16 @@ async function playNextSong(queue, interaction) {
     const song = queue.songs.shift();
     queue.isPlaying = true;
     
+    // Validate song data
+    if (!song || !song.url) {
+        console.error('Invalid song data:', song);
+        queue.isPlaying = false;
+        playNextSong(queue, interaction);
+        return;
+    }
+    
     try {
+        console.log(`Attempting to play: ${song.title} - ${song.url}`);
         const stream = await play.stream(song.url);
         
         const resource = createAudioResource(stream.stream, {
@@ -348,8 +359,13 @@ async function playNextSong(queue, interaction) {
         
     } catch (error) {
         console.error('Error playing song:', error);
+        console.error('Song data was:', song);
         queue.isPlaying = false;
-        playNextSong(queue, interaction);
+        
+        // Try to play next song
+        setTimeout(() => {
+            playNextSong(queue, interaction);
+        }, 2000);
     }
 }
 

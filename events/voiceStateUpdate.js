@@ -1,4 +1,4 @@
-const { joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, AudioPlayerStatus, VoiceConnectionStatus } = require('@discordjs/voice');
 const { getGuildSetting } = require('../utils/database');
 const { playTTSAnnouncement } = require('../utils/tts');
 
