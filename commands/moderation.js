@@ -46,6 +46,14 @@ const kickCommand = {
                 .setTimestamp();
                 
             await interaction.reply({ embeds: [embed] });
+            
+            // Log the action
+            const { logAction } = require('./utility');
+            await logAction(interaction.client, interaction.guildId, {
+                action: 'User Kicked',
+                moderator: interaction.user.tag,
+                details: `${user.tag} was kicked\nReason: ${reason}`
+            });
         } catch (error) {
             console.error('Error kicking user:', error);
             await interaction.reply({ content: '❌ Failed to kick the user!', ephemeral: true });
@@ -94,6 +102,14 @@ const banCommand = {
                 .setTimestamp();
                 
             await interaction.reply({ embeds: [embed] });
+            
+            // Log the action
+            const { logAction } = require('./utility');
+            await logAction(interaction.client, interaction.guildId, {
+                action: 'User Banned',
+                moderator: interaction.user.tag,
+                details: `${user.tag} was banned\nReason: ${reason}`
+            });
         } catch (error) {
             console.error('Error banning user:', error);
             await interaction.reply({ content: '❌ Failed to ban the user!', ephemeral: true });
@@ -154,6 +170,14 @@ const muteCommand = {
                 .setTimestamp();
                 
             await interaction.reply({ embeds: [embed] });
+            
+            // Log the action
+            const { logAction } = require('./utility');
+            await logAction(interaction.client, interaction.guildId, {
+                action: 'User Muted',
+                moderator: interaction.user.tag,
+                details: `${user.tag} was muted for ${duration}\nReason: ${reason}`
+            });
         } catch (error) {
             console.error('Error muting user:', error);
             await interaction.reply({ content: '❌ Failed to mute the user!', ephemeral: true });

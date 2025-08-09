@@ -11,8 +11,10 @@
   "description": "",
   "dependencies": {
     "@discordjs/voice": "^0.18.0",
+    "@distube/ytdl-core": "^4.16.12",
     "discord.js": "^14.21.0",
     "gtts": "^0.2.1",
+    "play-dl": "^1.9.7",
     "ytdl-core": "^4.11.5"
   }
 }

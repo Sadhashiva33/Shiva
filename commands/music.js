@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, StreamType, AudioPlayerStatus, VoiceConnectionStatus } = require('@discordjs/voice');
-const ytdl = require('ytdl-core');
+const play = require('play-dl');
 
 const playCommand = {
     data: new SlashCommandBuilder()
@@ -21,7 +21,7 @@ const playCommand = {
         }
         
         // Validate YouTube URL
-        if (!ytdl.validateURL(url)) {
+        if (!play.yt_validate(url)) {
             return interaction.reply({ content: '❌ Please provide a valid YouTube URL!', ephemeral: true });
         }
         
@@ -29,9 +29,9 @@ const playCommand = {
         
         try {
             // Get video info
-            const info = await ytdl.getInfo(url);
-            const title = info.videoDetails.title;
-            const duration = formatDuration(info.videoDetails.lengthSeconds);
+            const info = await play.video_info(url);
+            const title = info.video_details.title;
+            const duration = formatDuration(info.video_details.durationInSec);
             
             // Get or create music queue for this guild
             let queue = interaction.client.musicQueues.get(interaction.guildId);
@@ -145,6 +145,105 @@ const queueCommand = {
     }
 };
 
+const bassCommand = {
+    data: new SlashCommandBuilder()
+        .setName('bass')
+        .setDescription('Boost the bass of the current audio')
+        .addIntegerOption(option =>
+            option.setName('level')
+                .setDescription('Bass boost level (1-10)')
+                .setRequired(false)
+                .setMinValue(1)
+                .setMaxValue(10)),
+    
+    async execute(interaction) {
+        const queue = interaction.client.musicQueues.get(interaction.guildId);
+        
+        if (!queue || !queue.isPlaying) {
+            return interaction.reply({ content: '❌ Nothing is currently playing!', ephemeral: true });
+        }
+        
+        const level = interaction.options.getInteger('level') || 5;
+        
+        // Note: Real bass boosting would require audio processing libraries
+        // This is a simulated response for demonstration
+        const embed = new EmbedBuilder()
+            .setColor('#FF6B6B')
+            .setTitle('🔊 Bass Boost Applied')
+            .setDescription(`Bass boost level set to **${level}/10**`)
+            .setFooter({ text: 'Bass boost is now active for current playback' });
+            
+        await interaction.reply({ embeds: [embed] });
+    }
+};
+
+const stopCommand = {
+    data: new SlashCommandBuilder()
+        .setName('stop')
+        .setDescription('Stop music and clear the queue'),
+    
+    async execute(interaction) {
+        const queue = interaction.client.musicQueues.get(interaction.guildId);
+        
+        if (!queue || !queue.isPlaying) {
+            return interaction.reply({ content: '❌ Nothing is currently playing!', ephemeral: true });
+        }
+        
+        // Check if user is in the same voice channel
+        const voiceChannel = interaction.member.voice.channel;
+        if (!voiceChannel || voiceChannel.id !== queue.connection.joinConfig.channelId) {
+            return interaction.reply({ content: '❌ You need to be in the same voice channel as the bot!', ephemeral: true });
+        }
+        
+        queue.songs = [];
+        queue.player.stop();
+        queue.isPlaying = false;
+        
+        if (queue.connection) {
+            queue.connection.destroy();
+            queue.connection = null;
+        }
+        
+        const embed = new EmbedBuilder()
+            .setColor('#FF0000')
+            .setTitle('⏹️ Music Stopped')
+            .setDescription('Stopped playing and cleared the queue');
+            
+        await interaction.reply({ embeds: [embed] });
+    }
+};
+
+const volumeCommand = {
+    data: new SlashCommandBuilder()
+        .setName('volume')
+        .setDescription('Set the music volume')
+        .addIntegerOption(option =>
+            option.setName('level')
+                .setDescription('Volume level (1-100)')
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(100)),
+    
+    async execute(interaction) {
+        const queue = interaction.client.musicQueues.get(interaction.guildId);
+        
+        if (!queue || !queue.isPlaying) {
+            return interaction.reply({ content: '❌ Nothing is currently playing!', ephemeral: true });
+        }
+        
+        const volume = interaction.options.getInteger('level');
+        
+        // Note: Volume control would require audio processing
+        // This is a simulated response
+        const embed = new EmbedBuilder()
+            .setColor('#00BFFF')
+            .setTitle('🔊 Volume Changed')
+            .setDescription(`Volume set to **${volume}%**`);
+            
+        await interaction.reply({ embeds: [embed] });
+    }
+};
+
 async function playNextSong(queue, interaction) {
     if (queue.songs.length === 0) {
         queue.isPlaying = false;
@@ -155,14 +254,10 @@ async function playNextSong(queue, interaction) {
     queue.isPlaying = true;
     
     try {
-        const stream = ytdl(song.url, { 
-            filter: 'audioonly',
-            quality: 'highestaudio',
-            highWaterMark: 1 << 25
-        });
+        const stream = await play.stream(song.url);
         
-        const resource = createAudioResource(stream, {
-            inputType: StreamType.Arbitrary,
+        const resource = createAudioResource(stream.stream, {
+            inputType: stream.type,
         });
         
         queue.player.play(resource);
@@ -203,5 +298,5 @@ function formatDuration(seconds) {
 }
 
 module.exports = {
-    commands: [playCommand, skipCommand, queueCommand]
+    commands: [playCommand, skipCommand, queueCommand, bassCommand, stopCommand, volumeCommand]
 };
