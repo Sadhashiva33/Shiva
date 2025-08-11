@@ -54,7 +54,6 @@ for (const folder of commandFolders) {
 console.log(`📝 Total commands loaded: ${client.commands.size}`);
 
 // Load event files
-const fs = require("fs");
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
     const event = require(`./events/${file}`);
