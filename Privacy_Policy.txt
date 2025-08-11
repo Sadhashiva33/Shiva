@@ -1,0 +1,32 @@
+Privacy Policy – Kaida Discord Bot
+Effective Date: 10 August 2025
+
+1. Information We Collect
+Kaido may collect:
+
+Discord User IDs, usernames, and nicknames (to identify users for commands, moderation logs, and TTS).
+
+Server IDs and channel IDs (to operate commands and send messages).
+
+Voice channel activity (to detect joins/leaves for TTS).
+
+Command usage logs (for debugging and performance tracking).
+
+2. How We Use Your Information
+To provide bot features (music playback, TTS, moderation, etc.).
+
+To improve bot performance and fix bugs.
+
+To enforce our Terms of Service.
+
+3. Data Sharing
+We do not sell, trade, or share your information with third parties, except as required by law or to comply with Discord’s policies.
+
+4. Data Retention
+Minimal logs may be stored for up to 30 days for debugging and security.
+
+5. Your Rights
+You may request deletion of your data by contacting the bot owner via Discord.
+
+6. Changes to This Policy
+We may update this Privacy Policy from time to time. Continued use of Kaido after updates means you agree to the changes.

@@ -1,0 +1,24 @@
+Terms of Service
+Effective Date: 10 August 2025
+
+1. Agreement to Terms
+By inviting or using Kaido, you agree to these Terms of Service. If you do not agree, do not use the bot.
+
+2. Description of Service
+Kaido is a multifunctional Discord bot providing music playback, TTS announcements, moderation tools, utility commands, and mini-games.
+
+3. Acceptable Use
+You may not use Kaido to break Discord’s Community Guidelines or Terms of Service.
+
+You may not use Kaido for harassment, hate speech, or illegal activities.
+
+You may not attempt to exploit vulnerabilities in Kaido’s code or infrastructure.
+
+4. Limitations
+We may modify, suspend, or terminate Kaido’s service at any time without prior notice.
+
+5. Disclaimer
+Kaido is provided "as is" without warranties of any kind. We are not responsible for downtime, bugs, or loss of data.
+
+6. Changes to Terms
+We may update these Terms of Service at any time. Continued use after changes means you agree to the updated terms.
