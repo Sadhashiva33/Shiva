@@ -168,12 +168,10 @@ async function moveConnectionToChannel(guildConn, channel) {
       try { guildConn.connection.destroy(); } catch {}
     }
 
-   async function moveConnectionToChannel(guildConn, channel) {
+// Remove the duplicate function. Keep only the following correct implementation.
+async function moveConnectionToChannel(guildConn, channel) {
   try {
-    // Only move if the connection already exists and the channel is different.
     if (guildConn.connection && guildConn.connection.joinConfig.channelId !== channel.id) {
-      // Rejoin the voice channel with the new channel ID.
-      // This is the correct way to move a connection without destroying it.
       guildConn.connection.rejoin({
         channelId: channel.id,
         guildId: channel.guild.id,
@@ -267,19 +265,24 @@ async function processTTSQueue(client, guildId) {
 }
 
 // create a temp mp3 via gTTS and return filepath
-function generateTTSFile(text) {
-  return new Promise((resolve, reject) => {
-    try {
+function generateTTSFile(text)
+  {
+  return new Promise((resolve, reject) => 
+    {
+    try
+    {
       const safeText = String(text).slice(0, 200); // keep small
       const filename = `tts-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.mp3`;
       const filepath = path.join(os.tmpdir(), filename);
       const gtts = new gTTS(safeText, 'en');
 
-      gtts.save(filepath, err => {
+      gtts.save(filepath, err =>
+        {
         if (err) return reject(err);
         resolve(filepath);
       });
-    } catch (err) {
+    } catch (err)
+    {
       reject(err);
     }
   });
