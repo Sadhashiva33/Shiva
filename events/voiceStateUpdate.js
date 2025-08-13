@@ -161,13 +161,6 @@ async function ensureGuildConnection(client, guildId, channel) {
   }
 }
 
-async function moveConnectionToChannel(guildConn, channel) {
-  try {
-    // Only destroy the connection if it's for the same guild
-    if (guildConn.connection && guildConn.connection.joinConfig.guildId === channel.guild.id) {
-      try { guildConn.connection.destroy(); } catch {}
-    }
-
 // Remove the duplicate function. Keep only the following correct implementation.
 async function moveConnectionToChannel(guildConn, channel) {
   try {
