@@ -1,3 +1,4 @@
+// index.js
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { joinVoiceChannel } = require('@discordjs/voice');
 const fs = require('fs');
@@ -57,16 +58,13 @@ console.log(`📝 Total commands loaded: ${client.commands.size}`);
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
     const event = require(`./events/${file}`);
-}
-
-    if (event.once)
-    {
+    // This block was moved inside the loop
+    if (event.once) {
         client.once(event.name, (...args) => event.execute(...args, client));
-    } else
-    {
+    } else {
         client.on(event.name, (...args) => event.execute(...args, client));
     }
-
+}
 
 // Login to Discord
 client.login(config.token);
